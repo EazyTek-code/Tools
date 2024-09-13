@@ -106,7 +106,7 @@ def exit_application():
 
 # Create the main window
 root = tk.Tk()
-root.title("Archive Extractor")
+root.title("Unzipper")
 
 # Set the window size
 root.geometry("400x550")
