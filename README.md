@@ -1,15 +1,20 @@
-# SystemMapper.exe
+# SystemMapper.exe 🖥️🔍
 
-SystemMapper is designed to map the entire Windows file system and registry, save the results to a database, compare different system states, and generate a detailed HTML report highlighting the changes. This tool is useful for system administrators and cybersecurity professionals.
+![Python](https://img.shields.io/badge/Python-3.x-blue.svg)
+![License](https://img.shields.io/badge/License-MIT-green.svg)
+![Open Source](https://badges.frapsoft.com/os/v1/open-source.svg?v=103)
 
+SystemMapper is an open-source utility designed to map the Windows file system and registry, save the results to a database, and compare different system states. It generates detailed HTML reports to help system administrators and cybersecurity professionals monitor changes and detect unauthorized modifications.
 
-## Features
-- **File System Mapping**: Captures file paths, sizes, and modification times.
-- **Registry Mapping**: Maps the Windows registry to track changes.
-- **Database Saving**: Automatically saves results with a timestamp.
-- **System State Comparison**: Identifies added, removed, and modified files.
-- **HTML Report Generation**: Generates an interactive report with filtering options.
-- **User-Friendly GUI**: Easy-to-use graphical interface.
+## Features ✨
+- 📁 **File System Mapping**: Scans and maps the file system to capture file paths, sizes, and modification times.
+- 🛠️ **Registry Mapping**: Maps Windows registry across multiple hives to track system configurations and changes.
+- 💾 **Automatic Database Saving**: Saves mapping results to a database file with a timestamp.
+- 📊 **System State Comparison**: Compares database files to identify added, removed, and modified files or registry keys.
+- 📑 **HTML Report Generation**: Creates an interactive HTML report with filtering options for files or processes.
+- 🖼️ **User-Friendly GUI**: Intuitive graphical interface built with `tkinter`.
+- 🌐 **Open Source**: Distributed under an open-source license.
+
 
 
 # Unzipper.exe 🚀
