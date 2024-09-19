@@ -17,6 +17,9 @@ SystemMapper is an open-source utility designed to map the Windows file system a
 
 
 
+
+
+
 # Unzipper.exe 🚀
 
 ![Python](https://img.shields.io/badge/Python-3.x-blue.svg)
@@ -32,6 +35,10 @@ Unzipper is an open-source tool designed to decompress various archive formats s
 - ⏱ **Estimated Time Remaining**: Displays the estimated time to complete the extraction process.
 - 💻 **GUI**: User-friendly graphical interface using `tkinter`.
 - 🌐 **Open Source**: Available under the GPL License, encouraging community contributions and collaboration.
+
+
+
+
 
 
 # YaraRunner 🛡️🔍
