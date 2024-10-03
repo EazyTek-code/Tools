@@ -48,7 +48,7 @@ def run_yara_scan():
         messagebox.showerror("Error", str(e))
 
 def generate_report(output):
-    # Define the HTML structure with advanced styling and JavaScript filtering
+    # Generated report with detection results.
     html_content = """
     <!DOCTYPE html>
     <html lang="en">
