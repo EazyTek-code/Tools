@@ -81,6 +81,33 @@ YaraRunner is an open-source utility designed to scan files, directories, and ru
 
 
 
+# 🛡️ YARA Process Scanner
+
+[![PowerShell](https://img.shields.io/badge/PowerShell-5.0+-blue.svg)](https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell)
+![License](https://img.shields.io/badge/License-GPL-green.svg)
+[![YARA](https://img.shields.io/badge/YARA-4.0+-orange.svg)](https://github.com/VirusTotal/yara/releases)
+
+## 🔍 Overview
+
+**YARA Process Scanner** is a Windows-based utility with a GUI that allows you to scan running processes or specific binaries in memory using YARA rules. The tool generates a filterable HTML report for rule detections, with details on the matching rules and detection strings.
+
+## ✨ Features
+
+- **Scan all running processes** for YARA rule matches.
+- **Select a binary** to scan in memory.
+
+
+## 📋 Prerequisites
+
+- **PowerShell 5.0+** (comes pre-installed on most Windows systems).
+- **YARA Binary**: Download the latest `yara64.exe` from [YARA's official GitHub](https://github.com/VirusTotal/yara/releases).
+- **YARA Rule File**: A `.yar` or `.yara` file containing the detection rules.
+
+
+
+
+
+
 
 
 
