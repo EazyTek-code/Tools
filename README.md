@@ -89,7 +89,7 @@ YaraRunner is an open-source utility designed to scan files, directories, and ru
 
 ## 🔍 Overview
 
-**YARA Process Scanner** is a Windows-based utility with a GUI that allows you to scan running processes or specific binaries in memory using YARA rules. The tool generates a filterable HTML report for rule detections, with details on the matching rules and detection strings.
+**PSYara** is a Windows-based utility with a GUI that allows you to scan running processes or specific binaries in memory using YARA rules. The tool generates a filterable HTML report for rule detections, with details on the matching rules and detection strings.
 
 ## ✨ Features
 
