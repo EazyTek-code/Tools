@@ -81,7 +81,7 @@ YaraRunner is an open-source utility designed to scan files, directories, and ru
 
 
 
-# 🛡️ YARA Process Scanner
+# 🛡️ PSYara
 
 [![PowerShell](https://img.shields.io/badge/PowerShell-5.0+-blue.svg)](https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell)
 ![License](https://img.shields.io/badge/License-GPL-green.svg)
