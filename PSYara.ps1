@@ -80,34 +80,165 @@ function Generate-YaraReport {
     Log-Activity "YARA scan report generated: $fullFilePath"
 }
 
-# Function to terminate processes based on PID list
-function Terminate-Processes {
+# Function to terminate a process by PID
+function Terminate-Process {
     param (
-        [array]$processIds
+        [int]$processId,
+        [string]$processName
     )
-
-    foreach ($processId in $processIds) {
-        try {
-            Stop-Process -Id $processId -Force
-            Log-Activity "Terminated process with PID: $processId"
-        } catch {
-            Log-Activity "Error terminating process with PID: $processId - $_"
-        }
+    try {
+        Stop-Process -Id $processId -Force
+        Log-Activity "Successfully terminated process $processName (PID: $processId)"
+    } catch {
+        Log-Activity "Error terminating process $processName (PID: $processId): $_"
     }
+}
+
+# Function to scan the user-selected binary process
+function Scan-UserSelectedProcess {
+    Log-Activity "Starting YARA scan for the selected binary..."
+    Save-LastPaths
+
+    $yaraBinaryPath = $yaraBinaryTextbox.Text
+    $yaraRulePath = $yaraRuleTextbox.Text
+    $processPath = $processPathTextbox.Text
+    $matchesList = @()
+    $timeStamp = (Get-Date -Format "yyyyMMddHHmmss")
+    $outputFileName = "YaraScanReport_$timeStamp.html"
+
+    if (-not (Test-Path $yaraBinaryPath)) {
+        Log-Activity "YARA binary not found: $yaraBinaryPath"
+        return
+    }
+
+    if (-not (Test-Path $yaraRulePath)) {
+        Log-Activity "YARA rule file not found: $yaraRulePath"
+        return
+    }
+
+    if (-not (Test-Path $processPath)) {
+        Log-Activity "Process binary not found: $processPath"
+        return
+    }
+
+    # Launch the selected process
+    try {
+        $process = Start-Process -FilePath $processPath -PassThru
+        $processId = $process.Id
+        $processName = $process.ProcessName
+
+        Log-Activity "Launching selected binary: $processPath"
+        Log-Activity "Executing YARA command on process $processName (PID: $processId)"
+
+        $result = & "$yaraBinaryPath" -s $yaraRulePath $processId
+        if ($result -and $result -notmatch "no matches found") {
+            $matchesList += [pscustomobject]@{
+                ProcessName = $processName
+                PID = $processId
+                ProcessPath = $processPath
+                RuleName = "YARA Rule"
+                Detections = $result
+            }
+            Log-Activity "YARA detected matches in process $processName (PID: $processId)"
+        } else {
+            Log-Activity "No matches found in process $processName (PID: $processId)"
+        }
+
+        if ($matchesList.Count -gt 0) {
+            Generate-YaraReport -outputFileName $outputFileName -matchesList $matchesList
+        } else {
+            Log-Activity "No matches found."
+        }
+
+        # Terminate the process after scanning
+        Terminate-Process -processId $processId -processName $processName
+    } catch {
+        Log-Activity "Error starting or finding the selected process: $_"
+    }
+
+    Log-Activity "YARA scan for the selected binary completed."
+}
+
+# Function to scan all running processes
+function Scan-AllProcesses {
+    Log-Activity "Starting YARA scan for all processes..."
+    Save-LastPaths
+
+    $yaraBinaryPath = $yaraBinaryTextbox.Text
+    $yaraRulePath = $yaraRuleTextbox.Text
+    $matchesList = @()
+    $timeStamp = (Get-Date -Format "yyyyMMddHHmmss")
+    $outputFileName = "YaraScanReport_$timeStamp.html"
+
+    if (-not (Test-Path $yaraBinaryPath)) {
+        Log-Activity "YARA binary not found: $yaraBinaryPath"
+        return
+    }
+
+    if (-not (Test-Path $yaraRulePath)) {
+        Log-Activity "YARA rule file not found: $yaraRulePath"
+        return
+    }
+
+    $processes = Get-Process
+    $progressBar.Maximum = $processes.Count
+    $progressBar.Value = 0
+
+    foreach ($process in $processes) {
+        $processId = $process.Id
+        $processName = $process.Name
+        $processPath = "N/A"
+        try {
+            $processPath = $process.Path
+        } catch {
+            Log-Activity "Could not retrieve path for process $processName (PID: $processId)"
+        }
+
+        $yaraCommand = "$yaraBinaryPath -s $yaraRulePath $processId"
+        Log-Activity "Executing YARA command on process $processName (PID: $processId)"
+
+        try {
+            $result = & "$yaraBinaryPath" -s $yaraRulePath $processId
+            if ($result -and $result -notmatch "no matches found") {
+                $matchesList += [pscustomobject]@{
+                    ProcessName = $processName
+                    PID = $processId
+                    ProcessPath = $processPath
+                    RuleName = "YARA Rule"
+                    Detections = $result
+                }
+                Log-Activity "YARA detected matches in process $processName (PID: $processId)"
+            } else {
+                Log-Activity "No matches found in process $processName (PID: $processId)"
+            }
+        } catch {
+            Log-Activity "Error scanning process ${processName}: $_"
+        }
+
+        $progressBar.Value += 1
+    }
+
+    if ($matchesList.Count -gt 0) {
+        Generate-YaraReport -outputFileName $outputFileName -matchesList $matchesList
+    } else {
+        Log-Activity "No matches found."
+    }
+
+    Log-Activity "YARA scan for all processes completed."
 }
 
 # Define form and its properties
 $form = New-Object System.Windows.Forms.Form
 $form.Text = "YARA Process Scanner"
-$form.Size = New-Object System.Drawing.Size(600, 600)
+$form.Size = New-Object System.Drawing.Size(600, 650)
 $form.StartPosition = "CenterScreen"
 $form.FormBorderStyle = "FixedSingle"
 $form.MaximizeBox = $false
 
 # Define fonts and colors for a modern look
 $font = New-Object System.Drawing.Font("Segoe UI", 10)
-$backgroundColor = [System.Drawing.Color]::FromArgb(18, 18, 18)  # Dark background
-$foregroundColor = [System.Drawing.Color]::FromArgb(224, 224, 224)  # Light text
+$backgroundColor = [System.Drawing.Color]::FromArgb(18, 18, 18)
+$foregroundColor = [System.Drawing.Color]::FromArgb(224, 224, 224)
 
 $form.BackColor = $backgroundColor
 $form.ForeColor = $foregroundColor
@@ -177,10 +308,18 @@ $browseProcessPathButton.Location = New-Object System.Drawing.Point(430, 210)
 $browseProcessPathButton.Size = New-Object System.Drawing.Size(100, 30)
 $form.Controls.Add($browseProcessPathButton)
 
+# Checkbox to scan all processes
+$scanAllProcessesCheckbox = New-Object System.Windows.Forms.CheckBox
+$scanAllProcessesCheckbox.Text = "Scan All Running Processes"
+$scanAllProcessesCheckbox.Location = New-Object System.Drawing.Point(20, 250)
+$scanAllProcessesCheckbox.AutoSize = $true
+$scanAllProcessesCheckbox.ForeColor = $foregroundColor
+$form.Controls.Add($scanAllProcessesCheckbox)
+
 # Progress bar
 $progressBar = New-Object System.Windows.Forms.ProgressBar
 $progressBar.Size = New-Object System.Drawing.Size(500, 20)
-$progressBar.Location = New-Object System.Drawing.Point(20, 260)
+$progressBar.Location = New-Object System.Drawing.Point(20, 280)
 $progressBar.Minimum = 0
 $progressBar.Maximum = 100
 $form.Controls.Add($progressBar)
@@ -191,24 +330,24 @@ $activityLog.Multiline = $true
 $activityLog.ScrollBars = "Vertical"
 $activityLog.ReadOnly = $true
 $activityLog.Size = New-Object System.Drawing.Size(500, 150)
-$activityLog.Location = New-Object System.Drawing.Point(20, 290)
+$activityLog.Location = New-Object System.Drawing.Point(20, 310)
 $form.Controls.Add($activityLog)
 
 # Scan button
 $scanButton = New-Object System.Windows.Forms.Button
 $scanButton.Text = "Run YARA Scan"
-$scanButton.Location = New-Object System.Drawing.Point(150, 460)
+$scanButton.Location = New-Object System.Drawing.Point(150, 500)
 $scanButton.Size = New-Object System.Drawing.Size(150, 40)
 $form.Controls.Add($scanButton)
 
 # Exit button
 $exitButton = New-Object System.Windows.Forms.Button
 $exitButton.Text = "Exit"
-$exitButton.Location = New-Object System.Drawing.Point(320, 460)
+$exitButton.Location = New-Object System.Drawing.Point(320, 500)
 $exitButton.Size = New-Object System.Drawing.Size(100, 40)
 $form.Controls.Add($exitButton)
 
-# Event handler for browse buttons
+# Event handlers for browse buttons
 $browseYaraBinaryButton.Add_Click({
     $openFileDialog = New-Object System.Windows.Forms.OpenFileDialog
     $openFileDialog.Filter = "Executable Files (*.exe)|*.exe"
@@ -240,73 +379,13 @@ function Save-LastPaths {
     $lastPaths | ConvertTo-Json | Set-Content -Path $configFilePath
 }
 
-# Scan button logic
+# Scan button logic (includes option for scanning all processes)
 $scanButton.Add_Click({
-    Log-Activity "Starting YARA scan..."
-    Save-LastPaths
-
-    $yaraBinaryPath = $yaraBinaryTextbox.Text
-    $yaraRulePath = $yaraRuleTextbox.Text
-    $matchesList = @()
-    $timeStamp = (Get-Date -Format "yyyyMMddHHmmss")
-    $outputFileName = "YaraScanReport_$timeStamp.html"
-    $selectedProcess = $null
-    $selectedProcessId = $null
-    $selectedProcessName = $null
-    $initialProcesses = Get-Process
-
-    $binaryPath = $processPathTextbox.Text
-    if (-not (Test-Path $binaryPath)) {
-        Log-Activity "Selected binary not found: $binaryPath"
-        return
+    if ($scanAllProcessesCheckbox.Checked) {
+        Scan-AllProcesses
+    } else {
+        Scan-UserSelectedProcess
     }
-
-    try {
-        Log-Activity "Launching selected binary: $binaryPath"
-        $selectedProcess = Start-Process -FilePath $binaryPath -PassThru
-        Start-Sleep -Seconds 5
-
-        $finalProcesses = Get-Process
-        $newProcesses = $finalProcesses | Where-Object { $_.Id -notin $initialProcesses.Id }
-        $newProcessIds = $newProcesses | Select-Object -ExpandProperty Id
-
-        # Run YARA scan on new processes
-        foreach ($processId in $newProcessIds) {
-            $process = Get-Process -Id $processId
-            $processName = $process.Name
-            Log-Activity "Executing YARA command on process $processName (PID: $processId)"
-            try {
-                $result = & "$yaraBinaryPath" -s $yaraRulePath $processId
-                if ($result -and $result -notmatch "no matches found") {
-                    $matchesList += [pscustomobject]@{
-                        ProcessName = $processName
-                        PID = $processId
-                        ProcessPath = $processPathTextbox.Text
-                        RuleName = "YARA Rule"
-                        Detections = $result
-                    }
-                    Log-Activity "YARA detected matches in process $processName (PID: $processId)"
-                } else {
-                    Log-Activity "No matches found in process $processName (PID: $processId)"
-                }
-            } catch {
-                Log-Activity "Error scanning process ${processName}: $_"
-            }
-        }
-
-        if ($matchesList.Count -gt 0) {
-            Generate-YaraReport -outputFileName $outputFileName -matchesList $matchesList
-        } else {
-            Log-Activity "No matches found."
-        }
-
-        # Terminate all new processes
-        Terminate-Processes -processIds $newProcessIds
-    } catch {
-        Log-Activity "Error launching or scanning the process: $_"
-    }
-
-    Log-Activity "YARA scan completed."
 })
 
 # Exit button logic
