@@ -2,7 +2,7 @@ Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 
 # Configuration file to store last used paths
-$configFilePath = "$([System.IO.Path]::Combine([System.IO.Path]::GetTempPath(), 'PSYara.config'))"
+$configFilePath = "$([System.IO.Path]::Combine([System.IO.Path]::GetTempPath(), 'YaraProcessScanner.config'))"
 
 # Load last used paths
 $lastPaths = @{
@@ -229,7 +229,7 @@ function Scan-AllProcesses {
 
 # Define form and its properties
 $form = New-Object System.Windows.Forms.Form
-$form.Text = "PSYara"
+$form.Text = "YARA Process Scanner"
 $form.Size = New-Object System.Drawing.Size(600, 650)
 $form.StartPosition = "CenterScreen"
 $form.FormBorderStyle = "FixedSingle"
