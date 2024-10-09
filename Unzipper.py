@@ -8,8 +8,8 @@ from tkinter import ttk
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from threading import Thread
 
-# Function to extract a single archive file based on its type
-def extract_single_file(file_path, password, root_dir):
+# Function to extract a single archive file based on its type and delete if selected
+def extract_single_file(file_path, password, root_dir, delete_after):
     try:
         start_time = time.time()
         if file_path.endswith('.7z'):
@@ -19,6 +19,11 @@ def extract_single_file(file_path, password, root_dir):
         else:
             # Use patool for other archive types
             patoolib.extract_archive(file_path, outdir=root_dir)
+
+        # Delete the file if the option is selected
+        if delete_after:
+            os.remove(file_path)
+
         elapsed_time = time.time() - start_time
         return file_path, True, elapsed_time
     except Exception as e:
@@ -26,7 +31,7 @@ def extract_single_file(file_path, password, root_dir):
         return file_path, False, 0
 
 # Function to manage multithreaded extraction of files
-def extract_7z_files_multithreaded(files_list, password, progress_bar, progress_label, time_label, window):
+def extract_7z_files_multithreaded(files_list, password, progress_bar, progress_label, time_label, window, delete_after):
     total_files = len(files_list)
     extracted_files = 0
     total_time_spent = 0
@@ -51,7 +56,7 @@ def extract_7z_files_multithreaded(files_list, password, progress_bar, progress_
         window.after(100, window.update_idletasks)
 
     with ThreadPoolExecutor() as executor:
-        futures = {executor.submit(extract_single_file, file_path, password, root_dir): file_path for file_path, root_dir in files_list}
+        futures = {executor.submit(extract_single_file, file_path, password, root_dir, delete_after): file_path for file_path, root_dir in files_list}
 
         for future in as_completed(futures):
             file_path, success, elapsed_time = future.result()
@@ -72,6 +77,7 @@ def gather_archive_files(directory):
 def start_extraction():
     directory = directory_entry.get()
     password = password_entry.get()
+    delete_after = delete_var.get()
 
     if not directory or not password:
         messagebox.showwarning("Input Error", "Please provide both a directory and a password.")
@@ -90,7 +96,7 @@ def start_extraction():
     time_label.config(text="Estimated Time Remaining: Calculating...")
 
     # Run extraction in a separate thread to avoid freezing the GUI
-    extraction_thread = Thread(target=extract_7z_files_multithreaded, args=(files_list, password, progress_bar, progress_label, time_label, root))
+    extraction_thread = Thread(target=extract_7z_files_multithreaded, args=(files_list, password, progress_bar, progress_label, time_label, root, delete_after))
     extraction_thread.start()
 
 # Function to browse for a directory
@@ -109,7 +115,7 @@ root = tk.Tk()
 root.title("Unzipper")
 
 # Set the window size
-root.geometry("400x550")
+root.geometry("400x600")
 
 # Create a label and text entry for the directory path
 directory_label = tk.Label(root, text="Directory Path:")
@@ -133,6 +139,11 @@ password_entry.pack(pady=5)
 show_password_var = tk.BooleanVar()
 show_password_check = tk.Checkbutton(root, text="Show Password", variable=show_password_var, command=lambda: password_entry.config(show="" if show_password_var.get() else "*"))
 show_password_check.pack(pady=5)
+
+# Create a checkbox for deleting the original archive after extraction
+delete_var = tk.BooleanVar()
+delete_check = tk.Checkbutton(root, text="Delete original archive after extraction", variable=delete_var)
+delete_check.pack(pady=10)
 
 # Create a progress bar (hidden initially)
 progress_bar = ttk.Progressbar(root, orient="horizontal", length=300, mode="determinate")
