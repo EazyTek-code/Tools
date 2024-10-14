@@ -16,7 +16,8 @@ SystemMapper is an open-source utility designed to map the Windows file system a
 - 🌐 **Open Source**: Available under the GPL License, encouraging community contributions and collaboration.
 
 
-
+---
+---
 
 
 
@@ -37,7 +38,8 @@ Unzipper is an open-source tool designed to decompress various archive formats s
 - 🌐 **Open Source**: Available under the GPL License, encouraging community contributions and collaboration.
 
 
-
+---
+---
 
 
 # YaraRunner.exe 🧩🔍
@@ -66,7 +68,8 @@ Unzipper is an open-source tool designed to decompress various archive formats s
 - [Python 3.x](https://www.python.org/downloads/)
 - [YARA](https://virustotal.github.io/yara/)
 
-
+---
+---
 
 
 
@@ -92,7 +95,8 @@ Unzipper is an open-source tool designed to decompress various archive formats s
 - **YARA Binary**: Download the latest `yara64.exe` from [YARA's official GitHub](https://github.com/VirusTotal/yara/releases).
 - **YARA Rule File**: A `.yar` or `.yara` file containing the detection rules.
 
-
+---
+---
 
 # YaraMerge ![logo](https://img.shields.io/badge/Python-3.x-blue.svg) ![License](https://img.shields.io/badge/License-GPL-green.svg) ![OpenSource](https://img.shields.io/badge/OpenSource-💚-green.svg)
 
