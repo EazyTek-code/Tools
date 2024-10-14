@@ -105,6 +105,26 @@ YaraRunner is an open-source utility designed to scan files, directories, and ru
 
 
 
+# YaraMerge.exe ![logo](https://img.shields.io/badge/Python-3.x-blue.svg) ![License](https://img.shields.io/badge/License-GPL-green.svg) ![OpenSource](https://img.shields.io/badge/OpenSource-💚-green.svg)
+
+**YaraMerge** is an open-source utility designed to parse folder subdirectories, find all YARA rule files, and merge them into one master YARA file with proper formatting. This tool ensures that all YARA rules are neatly combined, with user-friendly options through an intuitive GUI. It is an essential tool for anyone working with large YARA rule sets, offering flexibility, ease of use, and efficient rule management.
+
+## Features ✨
+
+- 🗂 **Directory Parsing**: Recursively scans subdirectories to identify and collect all YARA rule files (`.yara`/`.yar`).
+- 🔄 **Rule Deduplication**: Automatically checks for and skips duplicate YARA rule names during the merging process.
+- 📝 **Custom Rule Formatting**: Ensures three blank lines between each merged YARA rule for readability.
+- 🖥️ **User-Friendly GUI**: A modern and intuitive graphical interface, making it easy for users to select directories and merge files.
+- 💾 **Automatic Output**: Saves the merged YARA file to a specified location with a custom name.
+- 🚀 **Cross-Platform**: Works on both Windows and Linux environments.
+
+
+
+
+
+
+
+
 
 
 
