@@ -111,6 +111,31 @@ Unzipper is an open-source tool designed to decompress various archive formats s
 - 💾 **Automatic Output**: Saves the merged YARA file to a specified location with a custom name.
 - 🚀 **Cross-Platform**: Works on both Windows and Linux environments.
 
+---
+---
+
+# FindReplaceTool 📝🔍
+
+![Python](https://img.shields.io/badge/Python-3.x-blue.svg) ![License](https://img.shields.io/badge/License-MIT-green.svg) ![Status](https://img.shields.io/badge/Status-Open%20Source-brightgreen.svg)
+
+**FindReplaceTool** is an open-source GUI-based tool designed to help users search and replace text in files across directories and subdirectories. With a user-friendly interface, it enables users to locate files containing specific text, review and select files for editing, and apply bulk replacements with ease.
+
+
+
+## Features ✨
+
+- 📂 **Directory Scanning**: Recursively scans the specified directory and subdirectories for files containing a specified search string.
+- 🔄 **String Replacement**: Allows replacement of a search string with a specified replacement string in selected files.
+- 📝 **File Extension Filtering**: Optionally filter the files to be scanned by their extension (e.g., `.txt`, `.log`).
+- ✅ **Selective File Modification**: Presents a list of files containing the search string, allowing users to select specific files to modify.
+- 🖥️ **User-Friendly Interface**: Modern, intuitive graphical interface built with `tkinter` for ease of use.
+- 📜 **Open Source**: Available under the MIT License, encouraging community contributions and collaboration.
+
+---
+---
+
+
+
 
 
 
