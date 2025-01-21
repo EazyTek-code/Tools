@@ -94,6 +94,20 @@ function Terminate-Process {
     }
 }
 
+# Function to suspend a process by PID
+function Suspend-Process {
+    param (
+        [int]$processId
+    )
+    try {
+        $process = Get-Process -Id $processId -ErrorAction Stop
+        $process.Suspend()  # Suspend the process (requires privileges)
+        Log-Activity "Process with PID $processId has been suspended."
+    } catch {
+        Log-Activity "Error suspending process with PID ${processId}: $_"
+    }
+}
+
 # Function to scan the user-selected binary process
 function Scan-UserSelectedProcess {
     Log-Activity "Starting YARA scan for the selected binary..."
@@ -105,6 +119,10 @@ function Scan-UserSelectedProcess {
     $matchesList = @()
     $timeStamp = (Get-Date -Format "yyyyMMddHHmmss")
     $outputFileName = "YaraScanReport_$timeStamp.html"
+
+    # Get delay from the delayTextbox and validate it
+    $delay = [int]$delayTextbox.Text
+    if ($delay -lt 0) { $delay = 0 }  # Ensure non-negative delay
 
     if (-not (Test-Path $yaraBinaryPath)) {
         Log-Activity "YARA binary not found: $yaraBinaryPath"
@@ -128,6 +146,17 @@ function Scan-UserSelectedProcess {
         $processName = $process.ProcessName
 
         Log-Activity "Launching selected binary: $processPath"
+        
+        # Delay before scanning to allow the binary time to unpack in memory
+        if ($delay -gt 0) {
+            Log-Activity "Waiting for $delay seconds before scanning..."
+            Start-Sleep -Seconds $delay
+            
+            # After the delay, suspend the process
+            Log-Activity "Suspending process $processName (PID: $processId) for scanning..."
+            Suspend-Process -processId $processId
+        }
+
         Log-Activity "Executing YARA command on process $processName (PID: $processId)"
 
         $result = & "$yaraBinaryPath" -s $yaraRulePath $processId
@@ -150,8 +179,13 @@ function Scan-UserSelectedProcess {
             Log-Activity "No matches found."
         }
 
-        # Terminate the process after scanning
-        Terminate-Process -processId $processId -processName $processName
+        # Determine whether to automatically terminate or leave the process suspended
+        if ($delay -gt 0) {
+            Log-Activity "Process is in a suspended state for manual termination."
+        } else {
+            # Terminate the process after scanning if no delay was specified
+            Terminate-Process -processId $processId -processName $processName
+        }
     } catch {
         Log-Activity "Error starting or finding the selected process: $_"
     }
@@ -316,10 +350,26 @@ $scanAllProcessesCheckbox.AutoSize = $true
 $scanAllProcessesCheckbox.ForeColor = $foregroundColor
 $form.Controls.Add($scanAllProcessesCheckbox)
 
+# Label for delay input
+$delayLabel = New-Object System.Windows.Forms.Label
+$delayLabel.Text = "Scan Delay (seconds):"
+$delayLabel.Location = New-Object System.Drawing.Point(20, 280)
+$delayLabel.ForeColor = $foregroundColor
+$delayLabel.AutoSize = $true
+$form.Controls.Add($delayLabel)
+
+# Textbox for delay input
+$delayTextbox = New-Object System.Windows.Forms.TextBox
+$delayTextbox.Size = New-Object System.Drawing.Size(100, 30)
+$delayTextbox.Location = New-Object System.Drawing.Point(160, 280)
+$delayTextbox.Text = "0"  # Default delay set to 0 seconds
+$delayTextbox.Font = $font
+$form.Controls.Add($delayTextbox)
+
 # Progress bar
 $progressBar = New-Object System.Windows.Forms.ProgressBar
 $progressBar.Size = New-Object System.Drawing.Size(500, 20)
-$progressBar.Location = New-Object System.Drawing.Point(20, 280)
+$progressBar.Location = New-Object System.Drawing.Point(20, 310)
 $progressBar.Minimum = 0
 $progressBar.Maximum = 100
 $form.Controls.Add($progressBar)
@@ -330,7 +380,7 @@ $activityLog.Multiline = $true
 $activityLog.ScrollBars = "Vertical"
 $activityLog.ReadOnly = $true
 $activityLog.Size = New-Object System.Drawing.Size(500, 150)
-$activityLog.Location = New-Object System.Drawing.Point(20, 310)
+$activityLog.Location = New-Object System.Drawing.Point(20, 340)
 $form.Controls.Add($activityLog)
 
 # Scan button
