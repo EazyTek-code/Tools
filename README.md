@@ -134,6 +134,26 @@ Unzipper is an open-source tool designed to decompress various archive formats s
 ---
 ---
 
+# Yara Scanner 🕵️‍♂️
+
+**Python** 3.x | **License** GPL | **Open Source** ❤️
+
+Yara Scanner is an open-source utility designed for Windows to scan files, live memory, targeted processes, or lanuch and suspend processes in order to scan memory space with YARA rules. It provides a user-friendly interface to select YARA rule files, configure scan parameters, exclude specific processes or paths, and generate detailed HTML reports to help security professionals and system administrators monitor and analyze system states.
+
+## Features 🌟
+
+- 🗂️ **File System Scanning**: Scans entire drives or specific directories for files matching YARA rules.
+- 💾 **Live Memory Scanning**: Scans the memory of all running processes (excluding user-specified processes).
+- 🎯 **Targeted Process Scanning**: Launches and scans a specific executable or DLL, with the option to suspend it after a delay.
+- ⏳ **Process Suspension**: Launches and suspends a specific executable or DLL immediately or after a delay.
+- 🚫 **Exclusion Support**: Allows exclusion of specific processes by name or PID, and specific files or directories.
+- ⚡ **Multithreaded Scanning**: Utilizes multiple threads based on CPU count for efficient file system scanning.
+- 📊 **HTML Report Generation**: Creates an interactive HTML report with detailed scan results, including matched rules and strings.
+- 🎨 **User-Friendly GUI**: Intuitive graphical interface built with `customtkinter`.
+- 🌍 **Open Source**: Available under the GPL License, encouraging community contributions and collaboration.
+
+---
+---
 
 
 
